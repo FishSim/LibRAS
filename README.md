@@ -6,7 +6,7 @@ This is a project within the Automatic Control group at Chalmers University of T
 
 ### Requirements
 
-+ OpenModelica, latest version
++ [OpenModelica](https://openmodelica.org/), latest version
 + All dependencies
 + Common sense
 
