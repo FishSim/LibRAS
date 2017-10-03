@@ -1,5 +1,7 @@
 # LibRAS
 
+[[https://github.com/FishSim/LibRAS/blob/master/logo.png|alt=logotype]]
+
 ## The Recirculating Aquaculture Simulator, second edition.
 
 This is a project within the Automatic Control group at Chalmers University of Technology. It is now supposed to be fully functioning, but still has a long way to go.
