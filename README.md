@@ -1,6 +1,6 @@
 # LibRAS
 
-[[https://github.com/FishSim/LibRAS/blob/master/logo.png|alt=logotype]]
+![logo](https://user-images.githubusercontent.com/8419918/31118741-bbecef3e-a82e-11e7-9c76-c6729b9389be.png)
 
 ## The Recirculating Aquaculture Simulator, second edition.
 
