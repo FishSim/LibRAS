@@ -1,7 +1,7 @@
 within LibRAS;
   model System
     extends Modelica.Fluid.System;
-    LibRAS.Units U;
+    import U = LibRAS.Units;
     import Modelica.Constants.eps;
 
     parameter Modelica.SIunits.PartialPressure pCO2 = 320 "Atmospheric CO2 partial pressure" annotation(Dialog(tab="General", group="Environment"));
