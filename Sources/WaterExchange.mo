@@ -50,5 +50,6 @@ equation
     m_S_removed = -(inStream(port_b.C_S_outflow)*port_b.m_flow/scalar(Medium.density_phX(port_b.p, port_b.h_outflow, {1})) + port_a.C_S_outflow*port_a.m_flow/scalar(Medium.density_phX(port_a.p, port_a.h_outflow, {1})));
     m_X_removed = -(inStream(port_b.C_X_outflow)*port_b.m_flow/scalar(Medium.density_phX(port_b.p, port_b.h_outflow, {1})) + port_a.C_X_outflow*port_a.m_flow/scalar(Medium.density_phX(port_a.p, port_a.h_outflow, {1})));
   end if;
-  annotation(defaultComponentName = "exchange", uses(Modelica(version = "3.2.1")));
+  annotation(defaultComponentName = "exchange", uses(Modelica(version = "3.2.1")),
+    Icon(graphics = {Rectangle(origin = {-40, -1}, fillPattern = FillPattern.Solid, extent = {{-2, -70}, {2, 70}}), Rectangle(origin = {-33, 62}, rotation = -45, fillPattern = FillPattern.Solid, extent = {{-11, -2}, {11, 2}}), Rectangle(origin = {-47, 62}, rotation = 45, fillPattern = FillPattern.Solid, extent = {{-11, -2}, {11, 2}}), Rectangle(origin = {33, -60}, rotation = -45, fillPattern = FillPattern.Solid, extent = {{-11, -2}, {11, 2}}), Rectangle(origin = {47, -60}, rotation = 45, fillPattern = FillPattern.Solid, extent = {{-11, -2}, {11, 2}}), Rectangle(origin = {40, 3}, fillPattern = FillPattern.Solid, extent = {{-2, -70}, {2, 70}}), Rectangle(origin = {0, -1}, extent = {{-100, 101}, {100, -99}})}));
 end WaterExchange;
