@@ -53,5 +53,6 @@ within LibRAS;
     parameter Real C_S_film_start[10](each unit = "kg/m3", each displayUnit = "g/m3") = {eps, eps, eps, eps, eps, eps, 2e-3, eps, eps, eps} "Start value of film S in CSBRs"          annotation(Dialog(tab="Initialization", group="Concentrations"));
     parameter Real C_X_start[7](each unit = "kg/m3", each displayUnit = "g/m3")      = {eps, 1e-3, 1e-3, eps, eps, eps, eps} "Start value of bulk X in CSBRs"          annotation(Dialog(tab="Initialization", group="Concentrations"));
     parameter Real C_X_film_start[7](each unit = "kg/m3", each displayUnit = "g/m3") = {3.0, 0.5, 5.0, 0.5, 0.5, 1.0, 0.1} "Start value of film X in CSBRs"    annotation(Dialog(tab="Initialization", group="Concentrations"));
+    parameter Real C_X_film_start_nitri[7](each unit = "kg/m3", each displayUnit = "g/m3") = (1 - eps_A) / (1 - eps_H) * C_X_film_start "Start value of film X in nitrifying CSBRs"    annotation(Dialog(tab="Initialization", group="Concentrations"));
 
   end System;

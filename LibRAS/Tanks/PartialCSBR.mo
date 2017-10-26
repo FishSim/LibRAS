@@ -8,7 +8,7 @@ partial model PartialCSBR
 
   parameter Medium.ExtraProperty C_S_film_start[Medium.nC_S](quantity=Medium.solublesNames, each unit="kg/m3", each displayUnit="g/m3") = system.C_S_film_start
   "Start value of solubles in film" annotation (Dialog(tab="Initialization", enable=Medium.nC_S > 0), HideResult = true);
-  parameter Medium.ExtraProperty C_X_film_start[Medium.nC_X](quantity=Medium.particulatesNames, each unit="kg/m3", each displayUnit="g/m3") = system.C_X_film_start
+  parameter Medium.ExtraProperty C_X_film_start[Medium.nC_X](quantity=Medium.particulatesNames, each unit="kg/m3", each displayUnit="g/m3") = if nitrifying then system.C_X_film_start_nitri else system.C_X_film_start
   "Start value of particulates in film" annotation (Dialog(tab="Initialization", enable=Medium.nC_X > 0), HideResult = true);
   parameter SI.Thickness L_start (displayUnit="mm") = 1.0e-4 "Initial biofilm thickness" annotation(Dialog(tab="General", group="CSBR"), HideResult = true);
 
