@@ -70,6 +70,7 @@ model FishTank
     Placement(visible = true, transformation(origin = {-50, 44}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   output SI.Mass mFish "Total mass of fish";
   output SI.Mass meanBW "Mean fish body weight";
+  output SI.Density avgDensity = mFish/sum(tankVolumes);
   Modelica.Thermal.HeatTransfer.Sources.FixedTemperature fixedTemperature1(T = SI.Conversions.from_degC(T)) annotation(
     Placement(visible = true, transformation(origin = {-20, 80}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 
