@@ -11,7 +11,7 @@ model SSCulture_V "Steady-state fish culture specified by tank volumes and maxim
   import LibRAS.Types.Species.X;
   
   // DESIGN VARIABLES
-  parameter Integer           gradingTime (unit="d", min=0) = 30  "Time between gradings in days";
+  parameter Integer           gradingTime (min=0) = 30  "Time between gradings in days";
   parameter SI.Density        fishDensity = 70                    "Maximum fish density in kg/m3";
   parameter Boolean fastCalculation = false "If true, assume constant number of fish";
 

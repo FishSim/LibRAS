@@ -11,7 +11,7 @@ model simpleCulture
   import LibRAS.Types.Species.X;
   
   // DESIGN VARIABLES
-  parameter Integer           gradingTime (unit="d", min=0) = 3  "Time between gradings in days";
+  parameter Integer           gradingTime (min=0) = 3  "Time between gradings in days";
   parameter SI.Density        fishDensity = 55                   "Maximum fish density in kg/m3";
   parameter SI.Time[:]  feedingTimes = {0}                       "Feeding times in seconds after beginning of each day (00:00) (NOT USED)";
   parameter SI.Time     feedingDuration = 86400                  "Length of feeding period in seconds (NOT USED)";
