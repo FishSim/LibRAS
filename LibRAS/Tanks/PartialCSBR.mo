@@ -12,14 +12,14 @@ partial model PartialCSBR
   "Start value of particulates in film" annotation (Dialog(tab="Initialization", enable=Medium.nC_X > 0), HideResult = true);
   parameter SI.Thickness L_start (displayUnit="mm") = 1.0e-4 "Initial biofilm thickness" annotation(Dialog(tab="General", group="CSBR"), HideResult = true);
 
-  parameter SI.Temp_C T_bio = 15 "Biofilm parameter evaluation temperature" annotation(Dialog(tab="General", group="CSBR"));
+  parameter SI.Temp_C T_bio = SI.Conversions.to_degC(system.T_start) "Biofilm parameter evaluation temperature" annotation(Dialog(tab="General", group="CSBR"));
   parameter Real carrier_packing(min=0.0) = 0.70 "Biocarrier packing" annotation(Dialog(tab="General", group="CSBR"));
   parameter Real carrier_displacement(min=0.0) = 0.18 "Biocarrier displacement" annotation(Dialog(tab="General", group="CSBR"));
   parameter SI.Area A = V*carrier_packing*system.As "Biocarrier surface" annotation(Dialog(tab="General", group="CSBR"));
   parameter SI.Volume Vw = V*(1-carrier_displacement*carrier_packing) "Available water volume w/o biofilm" annotation(Dialog(tab="General", group="CSBR")); // KAN VARA FEL
   parameter Boolean nitrifying = false "Biofilm is nitrifying" annotation(Evaluate = true, Dialog(tab="General", group="CSBR"), choices(checkBox = true));
-  parameter Real K_d (unit="1/(m.s)", displayUnit="1/(m.d)") = if nitrifying then system.K_dA else system.K_dH "Detachment coefficient" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
-  parameter Real filmPorosity = if nitrifying then system.eps_A  else system.eps_H "Biofilm porosity" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
+  //parameter Real K_d (unit="1/(m.s)", displayUnit="1/(m.d)") = if nitrifying then system.K_dA else system.K_dH "Detachment coefficient" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
+  //parameter Real filmPorosity = if nitrifying then system.eps_A  else system.eps_H "Biofilm porosity" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
 
   Medium.ExtraPropertyFlowRate[Medium.nC_S]         J_S (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Dissolved substance diffusion rate";
   Medium.ExtraProperty[Medium.nC_S]                 C_S_film (each unit="kg/m3", each displayUnit="g/m3") "Film dissolved substance concentration";
@@ -28,6 +28,8 @@ partial model PartialCSBR
   Medium.ExtraProperty[Medium.nC_X]                 C_X_film (each unit="kg/m3", each displayUnit="g/m3") "Film particulate substance concentration";
 
   Real heterotrophDominance (min=0, max=1.0) "Dominance of heterotrophic bacteria. 1 = No autotrophs, 0 = no heterotrophs";
+  Real K_d (unit="1/(m.s)", displayUnit="1/(m.d)") "Variable detachment coefficient";
+  Real filmPorosity "Variable biofilm porosity";
 
   Types.ProcessData.ProcessMatrix bioparam ( // Pass ALL the parameters!
     _mu_H = system.mu_H,
@@ -89,6 +91,8 @@ partial model PartialCSBR
   equation
     Vf = (Vw-L*A);
     heterotrophDominance = C_X_film[3]/(C_X_film[3]+C_X_film[4]+C_X_film[5]);
+    K_d = Utilities.logisticInterpolation(lower = system.K_dA, upper = system.K_dH, x0 = 0.8, k = 20, x = heterotrophDominance);
+    filmPorosity = Utilities.logisticInterpolation(lower = system.eps_A, upper = system.eps_H, x0 = 0.8, k = 20, x = heterotrophDominance);
 
     // Mass balances
     if traceDynamics == Modelica.Fluid.Types.Dynamics.SteadyState then // These are probably all wrong
