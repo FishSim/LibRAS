@@ -6,8 +6,6 @@ within LibRAS;
 
     parameter Modelica.SIunits.PartialPressure pCO2 = 320 "Atmospheric CO2 partial pressure" annotation(Dialog(tab="General", group="Environment"));
 
-    parameter U.MassConcentration K_S2  = 10.0 "gCOD/m3"  annotation(Dialog(tab="Testing", group="Units and conversions"));
-
     parameter U.GrowthRate[2] mu_H = {3.00, 6.00} "Heterotrophs - Growth constant"    annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] K_S  = {10.0, 10.0} "Heterotrophs - Organic substrate"  annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] K_OH = {0.20, 0.20} "Heterotrophs - Dissolved oxygen"   annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
