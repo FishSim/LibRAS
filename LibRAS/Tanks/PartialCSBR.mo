@@ -65,8 +65,9 @@ partial model PartialCSBR
     T = T_bio
     );
 
-  SI.Thickness L;
+  SI.Thickness L (displayUnit="mm");
 
+  output Real nitrificationRate_Apparent (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -R_S[6]/A;
   output Real nitrificationRate_AO (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -(P_film[4])*bioparam.SoluteReactions[S.NH, 4]*L;
   output Real nitrificationRate_NO (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -(P_film[5])*bioparam.SoluteReactions[S.NO2, 5]*L;
   output Real denitrificationRate (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -L*sum(P_film[2:3]*bioparam.SoluteReactions[S.NO2:S.NO3, 2:3]);

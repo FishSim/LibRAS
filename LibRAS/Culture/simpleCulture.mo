@@ -74,6 +74,7 @@ model simpleCulture
     // Feed an amount proportional to how much the fish have grown the past 24 hours.
     F_scaled := {feedingPulse * FCR * delta_m[i] for i in 1:nTanks} "Scaled added feed mass";
     F := F_scaled*F_nominal;
+    F_avg := sum(F);
 
   equation
     Vw = tankVolumes - n0 .* BW0[1:nTanks] / fish.bodyDensity;

@@ -18,8 +18,8 @@ within LibRAS.Sources;
     Modelica.Blocks.Interfaces.RealInput T_in if use_T_in "Prescribed fluid temperature" annotation(Placement(transformation(extent = {{-140, 20}, {-100, 60}}), iconTransformation(extent = {{-140, 20}, {-100, 60}})));
     Modelica.Blocks.Interfaces.RealInput X_in[Medium.nX] if use_X_in "Prescribed fluid composition" annotation(Placement(transformation(extent = {{-140, -60}, {-100, -20}})));
     Modelica.Blocks.Interfaces.RealInput C_in[Medium.nC] if use_C_in "Prescribed boundary trace substances" annotation(Placement(transformation(extent = {{-120, -100}, {-80, -60}})));
-    Modelica.Blocks.Interfaces.RealInput C_S_in[Medium.nC_S] if use_C_S_in "Prescribed boundary trace substances" annotation(Placement(transformation(origin = {-60, 100}, extent = {{-20, -20}, {20, 20}}, rotation = -90), iconTransformation(extent = {{-20, -20}, {20, 20}}, rotation = -90)));
-    Modelica.Blocks.Interfaces.RealInput C_X_in[Medium.nC_X] if use_C_X_in "Prescribed boundary trace substances" annotation(Placement(transformation(origin = {60, 100}, extent = {{-20, -20}, {20, 20}}, rotation = -90), iconTransformation(extent = {{-20, -20}, {20, 20}}, rotation = -90)));
+    Modelica.Blocks.Interfaces.RealInput C_S_in[Medium.nC_S] if use_C_S_in "Prescribed boundary trace substances" annotation(Placement(visible = true,transformation(origin = {-60, 100}, extent = {{-20, -20}, {20, 20}}, rotation = -90), iconTransformation(origin = {20, -100},extent = {{-20, -20}, {20, 20}}, rotation = 90)));
+    Modelica.Blocks.Interfaces.RealInput C_X_in[Medium.nC_X] if use_C_X_in "Prescribed boundary trace substances" annotation(Placement(visible = true,transformation(origin = {60, 100}, extent = {{-20, -20}, {20, 20}}, rotation = -90), iconTransformation(origin = {-40, -100},extent = {{-20, -20}, {20, 20}}, rotation = 90)));
   protected
     Modelica.Blocks.Interfaces.RealInput m_flow_in_internal "Needed to connect to conditional connector";
     Modelica.Blocks.Interfaces.RealInput T_in_internal "Needed to connect to conditional connector";
