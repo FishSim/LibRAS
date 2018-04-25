@@ -3,6 +3,7 @@ within LibRAS.Tanks;
 model FishTank
   replaceable package Medium = LibRAS.Media.WasteWater "Medium in the component";
   import SI = Modelica.SIunits;
+  import LibRAS.Types.Species.S;
   import LibRAS.Culture.*;
   import Modelica.SIunits.Conversions.from_day;
   import Modelica.SIunits.Conversions.from_hour;
@@ -85,7 +86,7 @@ equation
     Line(points = {{-100, 20}, {-32, 20}}, color = {0, 0, 127}));
   connect(oxygenPI.y, fishtank.KLa_in) annotation(
     Line(points = {{-18, 20}, {0, 20}, {0, 34}, {0, 34}}, color = {0, 0, 127}));
-  connect(fishtank.C_S[Integer(Types.Species.S.O)], oxygenPI.u_m);
+  connect(fishtank.C_S[Integer(S.O)], oxygenPI.u_m);
   connect(culture.m_X_output, fishtank.m_X_in) annotation(
     Line(points = {{-38, 40}, {-10, 40}, {-10, 40}, {-10, 40}}, color = {0, 0, 127}));
   connect(culture.m_S_output, fishtank.m_S_in) annotation(
