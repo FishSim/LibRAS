@@ -19,13 +19,13 @@ within LibRAS;
     parameter Real[2] b_A  = {0.05, 0.15} "Autotrophs - Mortality rate"       annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] b_AOB= {0.05, 0.15} "AOB - Mortality rate"              annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)")); // Guessed
     parameter Real[2] b_NOB= {0.05, 0.15} "NOB - Mortality rate"              annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)")); // Guessed
-    parameter Real[2] nu_g = {1.00, 1.00} "?"                                 annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
+    parameter Real[2] nu_g = {1.00, 1.00} "Correction factor for anoxic growth" annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] nu_NO2={0.80, 0.80} "Anoxic growth nitrite correction"  annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] nu_NO3={0.80, 0.80} "Anoxic growth nitrate correction"  annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] k_a  = {0.05, 0.05} "Ammonification rate"               annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] k_h  = {2.00, 3.00} "Hydrolysis rate"                   annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] K_X  = {0.30, 0.10} "Heterotrophs - Hydrolysis"         annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
-    parameter Real[2] nu_h = {1.30, 1.30} "?"                                 annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
+    parameter Real[2] nu_h = {1.30, 1.30} "Correction factor for hydrolysis"  annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] Y_H  = {0.67, 0.67} "Heterotrophs - Yield factor"       annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] Y_A  = {0.24, 0.24} "Autotrophs - Yield factor"         annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
     parameter Real[2] Y_AOB= {0.21, 0.21} "AOB - Yield factor"                annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)"));
