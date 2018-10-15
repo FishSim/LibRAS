@@ -49,6 +49,7 @@ model simpleCulture
   Real    [nTanks]    delta_m                         "Delta fish mass over two subsequent days";
 
   output SI.MassFlowRate fishProduction (displayUnit = "kg/d");
+  output SI.MassFlowRate F_avg "Feeding rate daily average";
 
   protected
     Real            [nTanks]    F_scaled          (each start=0.0)  "Scaled added feed mass in kg";

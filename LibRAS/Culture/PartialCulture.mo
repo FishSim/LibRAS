@@ -22,9 +22,9 @@ partial model PartialCulture
 
   // OUTPUTS
   output SI.Volume[nTanks] Vw "Tank water volume (tank volume - fish displacement) in m3";
-  Modelica.Blocks.Interfaces.RealOutput[size(m_S_tot, 1)] m_S_output "Connector for soluble species output signal" annotation(Placement(visible = true, transformation(extent = {{-100, 20}, {-60, 60}}, rotation = 0), iconTransformation(extent = {{100, 20}, {140, 60}}, rotation = 0)));
-  Modelica.Blocks.Interfaces.RealOutput[size(m_X_tot, 1)] m_X_output "Connector for soluble species output signal" annotation(Placement(visible = true, transformation(extent = {{-100, -60}, {-60, -20}}, rotation = 0), iconTransformation(extent = {{100, -60}, {140, -20}}, rotation = 0)));
-  output SI.MassFlowRate F_avg "Feeding rate daily average";
+  Modelica.Blocks.Interfaces.RealOutput[size(m_S_tot, 1)] m_S_output (each unit="kg/s", each displayUnit="g/d") "Connector for soluble species output signal" annotation(Placement(visible = true, transformation(extent = {{-100, 20}, {-60, 60}}, rotation = 0), iconTransformation(extent = {{100, 20}, {140, 60}}, rotation = 0)));
+  Modelica.Blocks.Interfaces.RealOutput[size(m_X_tot, 1)] m_X_output (each unit="kg/s", each displayUnit="g/d") "Connector for soluble species output signal" annotation(Placement(visible = true, transformation(extent = {{-100, -60}, {-60, -20}}, rotation = 0), iconTransformation(extent = {{100, -60}, {140, -20}}, rotation = 0)));
+
 
   protected
     SI.MassFlowRate [S, nTanks] m_S                                 "Produced waste, soluble species";
