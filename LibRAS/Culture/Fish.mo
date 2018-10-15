@@ -27,7 +27,7 @@ package Fish
 
   record RainbowTrout = FishData(
     TGC             = 1.9375e-3,
-    O2rate          = 4.051*1e-6/60,
+    O2rate          = 5.29e-8,//4.051*1e-6/60,
     mortality       = 0.02,
     T1              = {0.1, 3},
     T2              = {0.1, 6},
@@ -41,9 +41,11 @@ package Fish
     inert           = 0.01
   );
 
+
   record AtlanticSalmon = FishData(
     TGC             = 2.7e-3, // Thorarensen & Farrell 2011
-    O2rate          = 3.59e-8, // Berg et al., 1993
+    //O2rate          = 3.59e-8, // Berg et al., 1993
+    O2rate          = 3.4e-8, // Berg et al., 1993
     mortality       = 0.02,
     T1              = {0.1, 3},
     T2              = {0.1, 6},
