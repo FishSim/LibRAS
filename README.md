@@ -6,9 +6,8 @@ This is a project within the Automatic Control group at Chalmers University of T
 
 ### Requirements
 
-+ [OpenModelica](https://openmodelica.org/), latest version
-+ All dependencies
-+ Common sense
++ [OpenModelica](https://openmodelica.org/), version 1.12 (1.13 is broken)
++ Dependencies
 
 Tested and developed on Lubuntu.
 
