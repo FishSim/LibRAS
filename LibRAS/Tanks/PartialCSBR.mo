@@ -6,6 +6,8 @@ partial model PartialCSBR
   import LibRAS.Types.Species.S;
   import LibRAS.Types.Species.X;
 
+  parameter Integer N = 1 "Number of mixed layers in biofilm model";
+
   parameter Medium.ExtraProperty C_S_film_start[Medium.nC_S](quantity=Medium.solublesNames, each unit="kg/m3", each displayUnit="g/m3") = system.C_S_film_start
   "Start value of solubles in film" annotation (Dialog(tab="Initialization", enable=Medium.nC_S > 0), HideResult = true);
   parameter Medium.ExtraProperty C_X_film_start[Medium.nC_X](quantity=Medium.particulatesNames, each unit="kg/m3", each displayUnit="g/m3") = if nitrifying then system.C_X_film_start_nitri else system.C_X_film_start
@@ -21,11 +23,11 @@ partial model PartialCSBR
   //parameter Real K_d (unit="1/(m.s)", displayUnit="1/(m.d)") = if nitrifying then system.K_dA else system.K_dH "Detachment coefficient" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
   //parameter Real filmPorosity = if nitrifying then system.eps_A  else system.eps_H "Biofilm porosity" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
 
-  Medium.ExtraPropertyFlowRate[Medium.nC_S]         J_S (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Dissolved substance diffusion rate";
-  Medium.ExtraProperty[Medium.nC_S]                 C_S_film (each unit="kg/m3", each displayUnit="g/m3") "Film dissolved substance concentration";
+  Medium.ExtraPropertyFlowRate[N, Medium.nC_S]         J_S (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Dissolved substance diffusion rate";
+  Medium.ExtraProperty[N, Medium.nC_S]                 C_S_film (each unit="kg/m3", each displayUnit="g/m3") "Film dissolved substance concentration";
 
-  Medium.ExtraPropertyFlowRate[Medium.nC_X]         J_X (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Particulate substance diffusion rate";
-  Medium.ExtraProperty[Medium.nC_X]                 C_X_film (each unit="kg/m3", each displayUnit="g/m3") "Film particulate substance concentration";
+  Medium.ExtraPropertyFlowRate[N, Medium.nC_X]         J_X (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Particulate substance diffusion rate";
+  Medium.ExtraProperty[N, Medium.nC_X]                 C_X_film (each unit="kg/m3", each displayUnit="g/m3") "Film particulate substance concentration";
 
   Real heterotrophDominance (min=0, max=1.0) "Dominance of heterotrophic bacteria. 1 = No autotrophs, 0 = no heterotrophs";
   Real K_d (unit="1/(m.s)", displayUnit="1/(m.d)") "Variable detachment coefficient";
@@ -67,7 +69,7 @@ partial model PartialCSBR
 
   SI.Thickness L (displayUnit="mm");
 
-  output Real nitrificationRate_Apparent (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -R_S[6]/A;
+  /*output Real nitrificationRate_Apparent (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -R_S[6]/A;
   output Real nitrificationRate_AO (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -(P_film[4])*bioparam.SoluteReactions[S.NH, 4]*L;
   output Real nitrificationRate_NO (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -(P_film[5])*bioparam.SoluteReactions[S.NO2, 5]*L;
   output Real denitrificationRate (unit="kg/(m2.s)", displayUnit="g/(m2.d)") = -L*sum(P_film[2:3]*bioparam.SoluteReactions[S.NO2:S.NO3, 2:3]);
@@ -80,47 +82,63 @@ partial model PartialCSBR
 
   output Real[S, 11] R_S_film (each unit="kg/(m2.s)", each displayUnit="g/(m2.d)") = {P_film .* bioparam.SoluteReactions[i, :] for i in S} * L "Generation/consumption of species per unit biofilm area from each process" annotation(HideResult = true);
   //output Real[S, 11] R_S_bulk (each unit="kg/(m3.s)", each displayUnit="g/(m3.d)") = {P_bulk .* bioparam.SoluteReactions[i, :] for i in S} "Generation/consumption of species from each process";
-
+*/
   protected
     Real[11] P_bulk (each unit="kg/s", each displayUnit="g/d") "Process contribution to biomass growth rate in bulk";
-    Real[11] P_film (each unit="kg/s", each displayUnit="g/d") "Process contribution to biomass growth rate in film";
+    Real[N, 11] P_film (each unit="kg/s", each displayUnit="g/d") "Process contribution to biomass growth rate in film";
 
-    Real[Medium.nC_S] reactionRate_S_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of dissolved substances in the film";
-    Real[Medium.nC_X] reactionRate_X_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of particulate substances in the film";
+    Real[N, Medium.nC_S] reactionRate_S_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of dissolved substances in the film";
+    Real[N, Medium.nC_X] reactionRate_X_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of particulate substances in the film";
 
 
   equation
     Vf = (Vw-L*A);
-    heterotrophDominance = C_X_film[3]/(C_X_film[3]+C_X_film[4]+C_X_film[5]);
+    heterotrophDominance = sum(C_X_film[:,3])/sum(C_X_film[:,3]+C_X_film[:,4]+C_X_film[:,5]);
     K_d = Utilities.logisticInterpolation(lower = system.K_dA, upper = system.K_dH, x0 = 0.8, k = 20, x = heterotrophDominance);
     filmPorosity = Utilities.logisticInterpolation(lower = system.eps_A, upper = system.eps_H, x0 = 0.8, k = 20, x = heterotrophDominance);
 
     // Mass balances
     if traceDynamics == Modelica.Fluid.Types.Dynamics.SteadyState then // These are probably all wrong
       zeros(Medium.nC_S)  = mbC_S_flow + reactionRate_S;
-      der(C_S_film) = zeros(Medium.nC_S);
+      der(C_S_film) = zeros(N, Medium.nC_S);
       zeros(Medium.nC_X)  = mbC_X_flow + reactionRate_X;
-      der(C_X_film) = zeros(Medium.nC_X);
+      der(C_X_film) = zeros(N, Medium.nC_X);
       der(L)=0;
     else
-      der(mC_S_scaled) = mbC_S_flow./Medium.C_S_nominal + (A*der(L)*C_S)./Medium.C_S_nominal - A*J_S./Medium.C_S_nominal + Vf*reactionRate_S./Medium.C_S_nominal + J_gas./Medium.C_S_nominal;
+      der(mC_S_scaled) = mbC_S_flow./Medium.C_S_nominal + (A*der(L)*C_S)./Medium.C_S_nominal - A*J_S[N,:]./Medium.C_S_nominal + Vf*reactionRate_S./Medium.C_S_nominal + J_gas./Medium.C_S_nominal;
+      der(mC_X_scaled) = mbC_X_flow./Medium.C_X_nominal + (A*der(L)*C_X)./Medium.C_X_nominal - A*J_X[N,:]./Medium.C_X_nominal + Vf*reactionRate_X./Medium.C_X_nominal;
+
+      der(L) = 1/(system.rho_x*(1-filmPorosity))*sum((if i<>X.ND then J_X[N, Integer(i)]+L*sum(reactionRate_X_film[:, Integer(i)]) else 0) for i in X); // Exclude ND as per the report
+
       der(C_S_film) = 1/L * (J_S/filmPorosity - C_S_film*der(L)) + reactionRate_S_film/filmPorosity;
-      der(mC_X_scaled) = mbC_X_flow./Medium.C_X_nominal + (A*der(L)*C_X)./Medium.C_X_nominal - A*J_X./Medium.C_X_nominal + Vf*reactionRate_X./Medium.C_X_nominal;
       der(C_X_film) = 1/L * (J_X - C_X_film*der(L)) + reactionRate_X_film;
-      der(L) = 1/(system.rho_x*(1-filmPorosity))*sum((if i<>X.ND then J_X[Integer(i)]+L*reactionRate_X_film[Integer(i)] else 0) for i in X); // Exclude ND as per the report
     end if;
 
     // Reaction rates and diffusion
     for i in S loop
       reactionRate_S[Integer(i)] = P_bulk * bioparam.SoluteReactions[i, :];
-      reactionRate_S_film[Integer(i)] = P_film * bioparam.SoluteReactions[i, :];
-      J_S[Integer(i)] = system.K_x*(C_S[Integer(i)] - C_S_film[Integer(i)]);
+      for j in 1:N loop
+        reactionRate_S_film[j, Integer(i)] = P_film[j,:] * bioparam.SoluteReactions[i, :];
+        J_S[j, Integer(i)] = (if (j==N) then (system.K_x*(C_S[Integer(i)] - C_S_film[j, Integer(i)])) else 0);
+      end for;
+      /*
+       J_S = sum of 
+        (if layer=N) convection
+        (if layer < N) c(i+1)-ci / dx^2
+        (if layer > 1) c(i-1)-ci / dx^2
+      */
     end for;
 
     for i in X loop
       reactionRate_X[Integer(i)] = P_bulk * bioparam.ParticulateReactions[i, :];
-      reactionRate_X_film[Integer(i)] = P_film * bioparam.ParticulateReactions[i, :];
-      J_X[Integer(i)] = system.K_a*C_X[Integer(i)] - K_d*L^2*C_X_film[Integer(i)];
+      for j in 1:N loop
+        reactionRate_X_film[j, Integer(i)] = P_film[j, :] * bioparam.ParticulateReactions[i, :];
+        J_X[j, Integer(i)] = (if (j==N) then (system.K_a*C_X[Integer(i)] - K_d*L^2*C_X_film[j, Integer(i)]) else 0);
+      end for;
+      /*
+       J_S = sum of 
+        (if layer=N) convection only; no diffusion of particles
+      */
     end for;
 
     P_bulk = {
@@ -137,24 +155,26 @@ partial model PartialCSBR
       bioparam.k_h  * ((C_X[2]/C_X[3])/(bioparam.K_X + (C_X[2]/C_X[3]))) * ((C_S[3]/(bioparam.K_OH + C_S[3])) + bioparam.nu_h*(bioparam.K_OH/(bioparam.K_OH + C_S[3]))*((C_S[4]+C_S[5])/(bioparam.K_NO + C_S[4] + C_S[5]))) * C_X[3] * C_X[7] / C_X[2]
     };
 
-    P_film = {
-      bioparam.mu_H *          (C_S_film[2]/(bioparam.K_S + C_S_film[2])) * (C_S_film[3]/(bioparam.K_OH + C_S_film[3]))         * (C_S_film[6]/(bioparam.K_NHH + C_S_film[6]))           * C_X_film[3],
-      bioparam.mu_H * bioparam.nu_NO2 * (C_S_film[2]/(bioparam.K_S + C_S_film[2])) * (bioparam.K_OH/(bioparam.K_OH + C_S_film[3])) * (C_S_film[4]/(bioparam.K_NO + C_S_film[4])) * (C_S_film[4]/(C_S_film[4] + C_S_film[5] + Modelica.Constants.eps)) * C_X_film[3] * (C_S_film[6]/(bioparam.K_NHH + C_S_film[6])),
-      bioparam.mu_H * bioparam.nu_NO3 * (C_S_film[2]/(bioparam.K_S + C_S_film[2])) * (bioparam.K_OH/(bioparam.K_OH + C_S_film[3])) * (C_S_film[5]/(bioparam.K_NO + C_S_film[5])) * (C_S_film[5]/(C_S_film[4] + C_S_film[5] + Modelica.Constants.eps)) * C_X_film[3] * (C_S_film[6]/(bioparam.K_NHH + C_S_film[6])),
-      bioparam.mu_AOB * (C_S_film[6]/(bioparam.K_NH + C_S_film[6])) * (C_S_film[3]/(bioparam.K_OA + C_S_film[3])) * (C_S_film[8]/(bioparam.K_Alk + C_S_film[8])) * C_X_film[4],
-      bioparam.mu_NOB * (C_S_film[4]/(bioparam.K_NH + C_S_film[4])) * (C_S_film[3]/(bioparam.K_OA + C_S_film[3])) * (C_S_film[8]/(bioparam.K_Alk + C_S_film[8])) * C_X_film[5] * (bioparam.K_NHI/(C_S_film[6] + bioparam.K_NHI)),
-      bioparam.b_H   * C_X_film[3],
-      bioparam.b_AOB * C_X_film[4],
-      bioparam.b_NOB * C_X_film[5],
-      bioparam.k_a  * C_S_film[7]  * C_X_film[3],
-      bioparam.k_h  * ((C_X_film[2]/C_X_film[3])/(bioparam.K_X + (C_X_film[2]/C_X_film[3]))) * ((C_S_film[3]/(bioparam.K_OH + C_S_film[3])) + bioparam.nu_h*(bioparam.K_OH/(bioparam.K_OH + C_S_film[3]))*((C_S_film[4]+C_S_film[5])/(bioparam.K_NO + C_S_film[4] + C_S_film[5]))) * C_X_film[3],
-      bioparam.k_h  * ((C_X_film[2]/C_X_film[3])/(bioparam.K_X + (C_X_film[2]/C_X_film[3]))) * ((C_S_film[3]/(bioparam.K_OH + C_S_film[3])) + bioparam.nu_h*(bioparam.K_OH/(bioparam.K_OH + C_S_film[3]))*((C_S_film[4]+C_S_film[5])/(bioparam.K_NO + C_S_film[4] + C_S_film[5]))) * C_X_film[3] * C_X_film[7] / C_X_film[2]
-    };
+    P_film = {{
+      bioparam.mu_H *          (C_S_film[i, 2]/(bioparam.K_S + C_S_film[i, 2])) * (C_S_film[i, 3]/(bioparam.K_OH + C_S_film[i, 3]))         * (C_S_film[i, 6]/(bioparam.K_NHH + C_S_film[i, 6]))           * C_X_film[i, 3],
+      bioparam.mu_H * bioparam.nu_NO2 * (C_S_film[i, 2]/(bioparam.K_S + C_S_film[i, 2])) * (bioparam.K_OH/(bioparam.K_OH + C_S_film[i, 3])) * (C_S_film[i, 4]/(bioparam.K_NO + C_S_film[i, 4])) * (C_S_film[i, 4]/(C_S_film[i, 4] + C_S_film[i, 5] + Modelica.Constants.eps)) * C_X_film[i, 3] * (C_S_film[i, 6]/(bioparam.K_NHH + C_S_film[i, 6])),
+      bioparam.mu_H * bioparam.nu_NO3 * (C_S_film[i, 2]/(bioparam.K_S + C_S_film[i, 2])) * (bioparam.K_OH/(bioparam.K_OH + C_S_film[i, 3])) * (C_S_film[i, 5]/(bioparam.K_NO + C_S_film[i, 5])) * (C_S_film[i, 5]/(C_S_film[i, 4] + C_S_film[i, 5] + Modelica.Constants.eps)) * C_X_film[i, 3] * (C_S_film[i, 6]/(bioparam.K_NHH + C_S_film[i, 6])),
+      bioparam.mu_AOB * (C_S_film[i, 6]/(bioparam.K_NH + C_S_film[i, 6])) * (C_S_film[i, 3]/(bioparam.K_OA + C_S_film[i, 3])) * (C_S_film[i, 8]/(bioparam.K_Alk + C_S_film[i, 8])) * C_X_film[i, 4],
+      bioparam.mu_NOB * (C_S_film[i, 4]/(bioparam.K_NH + C_S_film[i, 4])) * (C_S_film[i, 3]/(bioparam.K_OA + C_S_film[i, 3])) * (C_S_film[i, 8]/(bioparam.K_Alk + C_S_film[i, 8])) * C_X_film[i, 5] * (bioparam.K_NHI/(C_S_film[i, 6] + bioparam.K_NHI)),
+      bioparam.b_H   * C_X_film[i, 3],
+      bioparam.b_AOB * C_X_film[i, 4],
+      bioparam.b_NOB * C_X_film[i, 5],
+      bioparam.k_a  * C_S_film[i, 7]  * C_X_film[i, 3],
+      bioparam.k_h  * ((C_X_film[i, 2]/C_X_film[i, 3])/(bioparam.K_X + (C_X_film[i, 2]/C_X_film[i, 3]))) * ((C_S_film[i, 3]/(bioparam.K_OH + C_S_film[i, 3])) + bioparam.nu_h*(bioparam.K_OH/(bioparam.K_OH + C_S_film[i, 3]))*((C_S_film[i, 4]+C_S_film[i, 5])/(bioparam.K_NO + C_S_film[i, 4] + C_S_film[i, 5]))) * C_X_film[i, 3],
+      bioparam.k_h  * ((C_X_film[i, 2]/C_X_film[i, 3])/(bioparam.K_X + (C_X_film[i, 2]/C_X_film[i, 3]))) * ((C_S_film[i, 3]/(bioparam.K_OH + C_S_film[i, 3])) + bioparam.nu_h*(bioparam.K_OH/(bioparam.K_OH + C_S_film[i, 3]))*((C_S_film[i, 4]+C_S_film[i, 5])/(bioparam.K_NO + C_S_film[i, 4] + C_S_film[i, 5]))) * C_X_film[i, 3] * C_X_film[i, 7] / C_X_film[i, 2]
+    } for i in 1:N};
 
   initial equation
     if traceDynamics == Modelica.Fluid.Types.Dynamics.FixedInitial then
-      C_S_film = C_S_film_start[1:Medium.nC_S];
-      C_X_film = C_X_film_start[1:Medium.nC_X];
+      for j in 1:N loop
+        C_S_film[j, :] = C_S_film_start[1:Medium.nC_S];
+        C_X_film[j, :] = C_X_film_start[1:Medium.nC_X];
+      end for;
       L=L_start;
     elseif traceDynamics == Modelica.Fluid.Types.Dynamics.SteadyStateInitial then
       der(C_S_film) = zeros(Medium.nC_S);
