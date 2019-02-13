@@ -2,10 +2,11 @@ within LibRAS.Blocks;
 
 block ESC
 extends Modelica.Blocks.Interfaces.SISO;
+  parameter Real preamp = 1 "Preamplifier gain";
   parameter Real k = 1 "Integrator Gain";
   parameter Modelica.SIunits.Frequency f = 1 "Perturbation frequency";
   parameter Real a = 1 "Perturbation amplitude";
-  parameter Real h = 1 "Washout filter constant";
+  parameter Real Tf = 1 "Highpass time constant";
   parameter Real m = 0 "Base level of output";
   parameter Modelica.SIunits.Time startTime = 1 "Activate when time >= startTime";
 
@@ -15,7 +16,7 @@ extends Modelica.Blocks.Interfaces.SISO;
     Placement(visible = true, transformation(origin = {8, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Math.Product product1 annotation(
     Placement(visible = true, transformation(origin = {-24, -30}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Continuous.TransferFunction highpass(a = {1, h}, b = {1, 0})  annotation(
+  Modelica.Blocks.Continuous.TransferFunction highpass(a = {Tf,1}, b = {preamp, 0})  annotation(
     Placement(visible = true, transformation(origin = {-58, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.Constant bias(k = m)  annotation(
     Placement(visible = true, transformation(origin = {8, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
