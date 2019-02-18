@@ -23,7 +23,9 @@ partial model PartialCSBR
   //parameter Real K_d (unit="1/(m.s)", displayUnit="1/(m.d)") = if nitrifying then system.K_dA else system.K_dH "Detachment coefficient" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
   //parameter Real filmPorosity = if nitrifying then system.eps_A  else system.eps_H "Biofilm porosity" annotation(Evaluate = true, Dialog(tab="Advanced", group="CSBR"));
 
-  Medium.ExtraPropertyFlowRate[N, Medium.nC_S]         J_S (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Dissolved substance diffusion rate";
+  Medium.ExtraPropertyFlowRate[N, Medium.nC_S]         J_S (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Dissolved substance diffusion rate (convection and diffusion)";
+  Medium.ExtraPropertyFlowRate[N, Medium.nC_S]         J_S_d (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Dissolved substance diffusion rate inside biofilm";
+  Medium.ExtraPropertyFlowRate[N, Medium.nC_S]         J_S_c (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Dissolved substance diffusion rate (convection to film)";
   Medium.ExtraProperty[N, Medium.nC_S]                 C_S_film (each unit="kg/m3", each displayUnit="g/m3") "Film dissolved substance concentration";
 
   Medium.ExtraPropertyFlowRate[N, Medium.nC_X]         J_X (each unit="kg/(m2.s)", each displayUnit="g/(m2.s)") "Particulate substance diffusion rate";
@@ -32,6 +34,8 @@ partial model PartialCSBR
   Real heterotrophDominance (min=0, max=1.0) "Dominance of heterotrophic bacteria. 1 = No autotrophs, 0 = no heterotrophs";
   Real K_d (unit="1/(m.s)", displayUnit="1/(m.d)") "Variable detachment coefficient";
   Real filmPorosity "Variable biofilm porosity";
+
+  parameter Real[S] D = fill(system.D_Test, Medium.nC_S) "Diffusion constant";
 
   Types.ProcessData.ProcessMatrix bioparam ( // Pass ALL the parameters!
     _mu_H = system.mu_H,
@@ -90,6 +94,9 @@ partial model PartialCSBR
     Real[N, Medium.nC_S] reactionRate_S_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of dissolved substances in the film";
     Real[N, Medium.nC_X] reactionRate_X_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of particulate substances in the film";
 
+    //Real[N, Medium.nC_S] diffusionRate_S_below  (each unit="kg/s", each displayUnit="g/d");
+    //Real[N, Medium.nC_S] diffusionRate_S_above  (each unit="kg/s", each displayUnit="g/d");
+
 
   equation
     Vf = (Vw-L*A);
@@ -105,21 +112,28 @@ partial model PartialCSBR
       der(C_X_film) = zeros(N, Medium.nC_X);
       der(L)=0;
     else
-      der(mC_S_scaled) = mbC_S_flow./Medium.C_S_nominal + (A*der(L)*C_S)./Medium.C_S_nominal - A*J_S[N,:]./Medium.C_S_nominal + Vf*reactionRate_S./Medium.C_S_nominal + J_gas./Medium.C_S_nominal;
+      der(mC_S_scaled) = mbC_S_flow./Medium.C_S_nominal + (A*der(L)*C_S)./Medium.C_S_nominal - A*J_S_c[N,:]./Medium.C_S_nominal + Vf*reactionRate_S./Medium.C_S_nominal + J_gas./Medium.C_S_nominal;
       der(mC_X_scaled) = mbC_X_flow./Medium.C_X_nominal + (A*der(L)*C_X)./Medium.C_X_nominal - A*J_X[N,:]./Medium.C_X_nominal + Vf*reactionRate_X./Medium.C_X_nominal;
 
       der(L) = 1/(system.rho_x*(1-filmPorosity))*sum((if i<>X.ND then J_X[N, Integer(i)]+L*sum(reactionRate_X_film[:, Integer(i)]) else 0) for i in X); // Exclude ND as per the report
 
-      der(C_S_film) = 1/L * (J_S/filmPorosity - C_S_film*der(L)) + reactionRate_S_film/filmPorosity;
-      der(C_X_film) = 1/L * (J_X - C_X_film*der(L)) + reactionRate_X_film;
+      der(C_S_film) = (N*J_S)/(L*filmPorosity) - C_S_film*der(L)/L + reactionRate_S_film/filmPorosity;
+      der(C_X_film) = (N*J_X)/L - C_X_film*der(L)/L + reactionRate_X_film;
+      //der(C_S_film) = 1/L * (J_S/filmPorosity - C_S_film*der(L)) + reactionRate_S_film/filmPorosity;
+      //der(C_X_film) = 1/L * (J_X - C_X_film*der(L)) + reactionRate_X_film;
     end if;
+
+    J_S = J_S_c + J_S_d;
 
     // Reaction rates and diffusion
     for i in S loop
       reactionRate_S[Integer(i)] = P_bulk * bioparam.SoluteReactions[i, :];
       for j in 1:N loop
-        reactionRate_S_film[j, Integer(i)] = P_film[j,:] * bioparam.SoluteReactions[i, :];
-        J_S[j, Integer(i)] = (if (j==N) then (system.K_x*(C_S[Integer(i)] - C_S_film[j, Integer(i)])) else 0);
+        reactionRate_S_film[j, Integer(i)] = P_film[N, :] * bioparam.SoluteReactions[i, :];
+        J_S_c[j, Integer(i)] = (if (j==N) then (system.K_x*(C_S[Integer(i)] - C_S_film[j, Integer(i)])) else 0);
+        J_S_d[j, Integer(i)] = (if (j>1) then (D[i]*(C_S_film[j-1, Integer(i)] - C_S_film[j, Integer(i)])/(L/N)^2) else 0)
+                             + (if (j<N) then (D[i]*(C_S_film[j+1, Integer(i)] - C_S_film[j, Integer(i)])/(L/N)^2) else 0);
+        //J_S[j, Integer(i)] = J_S_c[j, Integer(i)] + J_S_d[j, Integer(i)];
       end for;
       /*
        J_S = sum of 
@@ -132,12 +146,11 @@ partial model PartialCSBR
     for i in X loop
       reactionRate_X[Integer(i)] = P_bulk * bioparam.ParticulateReactions[i, :];
       for j in 1:N loop
-        reactionRate_X_film[j, Integer(i)] = P_film[j, :] * bioparam.ParticulateReactions[i, :];
+        reactionRate_X_film[j, Integer(i)] = P_film[N, :] * bioparam.ParticulateReactions[i, :];
         J_X[j, Integer(i)] = (if (j==N) then (system.K_a*C_X[Integer(i)] - K_d*L^2*C_X_film[j, Integer(i)]) else 0);
       end for;
       /*
-       J_S = sum of 
-        (if layer=N) convection only; no diffusion of particles
+       J_X = (if layer=N) convection only; no diffusion of particles
       */
     end for;
 

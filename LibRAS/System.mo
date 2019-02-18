@@ -38,6 +38,19 @@ within LibRAS;
     parameter Real[2] K_NHH = {0.01, 0.01} "Heterotrophs - Ammonia"           annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)")); // This is the 0.01 found in the report
     parameter Real[2] K_NHI = {5.00, 5.00} "Ammonia inhibition of NOB growth" annotation(Dialog(tab="Biofilm", group="Growth and conversion (at 10 and 20 degC)")); // Iacopozzi et al 2007
 
+    parameter Real D_Test (unit="m^2/s")     = 1e-4/(24*3600) "Diffusion coefficient for oxygen" annotation(Dialog(tab="Biofilm", group="Physical"));
+
+/*
+T = [t.^0 t t.^2 t.^3]';
+
+DO2 = [682 29.8 -0.0343 0.0160] * T * 1e-7;
+DNH = [730 12.8 0.606 -0.00533] * T * 1e-7;
+DAlk= [450 7.16 0.446 -0.00533] * T * 1e-7;
+DNO2= [610 12.8 0.606 -0.00533] * T * 1e-7;
+DNO3= [610 12.8 0.606 -0.00533] * T * 1e-7;
+DBOD= [830 0 0 0] * T * 1e-7;
+*/
+
     parameter Real K_x (unit="m/s")     = 2.0 /(24*3600)    "Solute transport coefficient"      annotation(Dialog(tab="Biofilm", group="Physical"));
     parameter Real K_a (unit="m/s")     = 10  /(24*3600)    "Attachment coefficent"             annotation(Dialog(tab="Biofilm", group="Physical"));
     parameter Real K_dA (unit="1/(m.s)") = 30e3 /(24*3600)   "Detachment coefficient in nitrifying biofilm"    annotation(Dialog(tab="Biofilm", group="Physical"));
