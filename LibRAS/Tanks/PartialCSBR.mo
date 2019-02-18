@@ -89,7 +89,7 @@ partial model PartialCSBR
 */
   protected
     Real[11] P_bulk (each unit="kg/s", each displayUnit="g/d") "Process contribution to biomass growth rate in bulk";
-    Real[N, 11] P_film (each unit="kg/s", each displayUnit="g/d") "Process contribution to biomass growth rate in film";
+    Real[11] P_film (each unit="kg/s", each displayUnit="g/d") "Process contribution to biomass growth rate in film";
 
     Real[N, Medium.nC_S] reactionRate_S_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of dissolved substances in the film";
     Real[N, Medium.nC_X] reactionRate_X_film  (each unit="kg/s", each displayUnit="g/d") "Reaction rates (unscaled) of particulate substances in the film";
